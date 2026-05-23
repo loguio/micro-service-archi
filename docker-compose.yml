@@ -5,14 +5,14 @@ services:
     container_name: dev-auth-service
     build:
       context: .
-      dockerfile: apps/auth-service/Dockerfile.dev
+      dockerfile: apps/auth-service/Dockerfile
+      target: development
     ports:
       - "3001:3001"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
       - /usr/src/app/apps/auth-service/node_modules
-      - /usr/src/app/apps/auth-service/dist
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -21,14 +21,14 @@ services:
     container_name: dev-user-service
     build:
       context: .
-      dockerfile: apps/user-service/Dockerfile.dev
+      dockerfile: apps/user-service/Dockerfile
+      target: development
     ports:
       - "3002:3002"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
       - /usr/src/app/apps/user-service/node_modules
-      - /usr/src/app/apps/user-service/dist
     environment:
       - NODE_ENV=development
       - PORT=3002
@@ -37,7 +37,8 @@ services:
     container_name: dev-web-portal
     build:
       context: .
-      dockerfile: apps/web-portal/Dockerfile.dev
+      dockerfile: apps/web-portal/Dockerfile
+      target: development
     ports:
       - "3000:3000"
     volumes:
