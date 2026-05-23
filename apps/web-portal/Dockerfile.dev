@@ -1,0 +1,25 @@
+FROM node:22-alpine
+
+WORKDIR /usr/src/app
+
+# Copy root package files
+COPY package*.json ./
+
+# Copy all workspace package files to allow npm workspaces resolution
+COPY apps/auth-service/package.json ./apps/auth-service/
+COPY apps/user-service/package.json ./apps/user-service/
+COPY apps/web-portal/package.json ./apps/web-portal/
+
+# Install dependencies (utilizing root package lock)
+RUN npm ci
+
+# Copy the rest of the monorepo code
+COPY . .
+
+EXPOSE 3000
+
+# Force Next.js dev server to bind to all interfaces inside the container
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
+
+CMD ["npm", "run", "dev", "-w", "apps/web-portal"]

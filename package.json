@@ -1,0 +1,14 @@
+{
+  "name": "clean-archi-devops-starter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Clean Architecture & DevOps monorepo starter with NestJS, Next.js, and Docker",
+  "scripts": {
+    "dev:docker": "docker compose up --build",
+    "down:docker": "docker compose down",
+    "clean": "npm run clean -w apps/auth-service -w apps/user-service -w apps/web-portal || true"
+  },
+  "workspaces": [
+    "apps/*"
+  ]
+}
