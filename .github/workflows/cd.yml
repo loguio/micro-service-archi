@@ -1,0 +1,43 @@
+name: Continuous Deployment (Fake)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preprod
+          - staging
+
+jobs:
+  deploy:
+    name: Fake Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start deployment
+        run: |
+          echo "Starting deployment to ${{ github.event.inputs.environment }}..."
+          echo "Triggered by: ${{ github.actor }}"
+
+      - name: Simulate building assets
+        run: |
+          echo "Running production build simulation..."
+          sleep 2
+          echo "Build completed."
+
+      - name: Simulate artifact deployment
+        run: |
+          echo "Uploading assets to server..."
+          sleep 3
+          echo "Restarting services..."
+          sleep 1
+
+      - name: Deployment Success
+        run: |
+          echo "=== DEPLOYMENT SUCCESS ==="
+          echo "The application was successfully deployed to ${{ github.event.inputs.environment }}."
