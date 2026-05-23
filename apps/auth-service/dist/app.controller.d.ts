@@ -1,0 +1,20 @@
+import { AppService } from './app.service';
+export declare class AppController {
+    private readonly appService;
+    constructor(appService: AppService);
+    getHello(): string;
+    getHealth(): {
+        status: string;
+        service: string;
+        timestamp: string;
+    };
+    mockLogin(): {
+        success: boolean;
+        token: string;
+        user: {
+            id: string;
+            email: string;
+            role: string;
+        };
+    };
+}
