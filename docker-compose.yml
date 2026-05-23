@@ -16,6 +16,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
+      - OTEL_SERVICE_NAME=auth-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://tempo:4318/v1/traces
 
   user-service:
     container_name: dev-user-service
@@ -32,6 +34,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3002
+      - OTEL_SERVICE_NAME=user-service
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://tempo:4318/v1/traces
 
   web-portal:
     container_name: dev-web-portal
@@ -50,6 +54,8 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - HOSTNAME=0.0.0.0
+      - OTEL_SERVICE_NAME=web-portal
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
     depends_on:
       - auth-service
       - user-service
