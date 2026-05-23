@@ -1,0 +1,8 @@
+node_modules
+**/node_modules
+.git
+.github
+apps/*/dist
+apps/*/.next
+.next
+npm-debug.log
