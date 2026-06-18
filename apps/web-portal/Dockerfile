@@ -2,6 +2,11 @@
 FROM node:22-alpine AS base
 WORKDIR /usr/src/app
 
+# Install curl, bash, and Infisical CLI
+RUN apk --no-cache add curl bash \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash \
+    && apk --no-cache add infisical
+
 # 2. Dependencies stage
 FROM base AS dependencies
 COPY package*.json ./
@@ -16,7 +21,7 @@ COPY . .
 EXPOSE 3000
 ENV HOSTNAME="0.0.0.0"
 ENV PORT=3000
-CMD ["npm", "run", "dev", "-w", "apps/web-portal"]
+CMD ["infisical", "run", "--env=dev", "--", "npm", "run", "dev", "-w", "apps/web-portal"]
 
 # 4. Builder stage
 FROM dependencies AS builder
@@ -36,4 +41,4 @@ COPY --from=builder /usr/src/app/apps/web-portal/.next/standalone ./
 COPY --from=builder /usr/src/app/apps/web-portal/.next/static ./apps/web-portal/.next/static
 
 EXPOSE 3000
-CMD ["node", "apps/web-portal/server.js"]
+CMD ["infisical", "run", "--env=prod", "--", "node", "apps/web-portal/server.js"]

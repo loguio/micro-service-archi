@@ -3,12 +3,12 @@ import { otelSDK } from './otel-sdk';
 otelSDK.start();
 
 import { NestFactory } from '@nestjs/core';
-import { Logger } from 'nestjs-pino';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
-  app.useLogger(app.get(Logger));
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.enableCors();
   await app.listen(process.env.PORT ?? 3001);
 }
