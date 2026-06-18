@@ -1,10 +1,12 @@
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
-const traceExporter = new OTLPTraceExporter({
-  url: process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || 'http://localhost:4318/v1/traces',
-});
+// Enable OpenTelemetry diagnostic logging
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.WARN);
+
+const traceExporter = new OTLPTraceExporter();
 
 export const otelSDK = new NodeSDK({
   traceExporter,
@@ -12,6 +14,7 @@ export const otelSDK = new NodeSDK({
     getNodeAutoInstrumentations({
       '@opentelemetry/instrumentation-fs': { enabled: false },
       '@opentelemetry/instrumentation-net': { enabled: false },
+      '@opentelemetry/instrumentation-winston': { disableLogSending: true },
     }),
   ],
 });

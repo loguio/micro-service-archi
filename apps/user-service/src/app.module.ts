@@ -1,17 +1,33 @@
 import { Module } from '@nestjs/common';
-import { LoggerModule } from 'nestjs-pino';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+// Custom format for dev console logging (reads trace_id and span_id injected by OTel)
+const devLogFormat = winston.format.printf(({ level, message, timestamp, trace_id, span_id, ...meta }) => {
+  const traceInfo = trace_id ? ` [trace_id=${trace_id} span_id=${span_id}]` : '';
+  const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
+  return `${timestamp} [${level}]${traceInfo}: ${message}${metaStr}`;
+});
+
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-        transport: process.env.NODE_ENV !== 'production'
-          ? { target: 'pino-pretty', options: { colorize: true } }
-          : undefined,
-      },
+    WinstonModule.forRoot({
+      transports: [
+        new winston.transports.Console({
+          level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            process.env.NODE_ENV === 'production'
+              ? winston.format.json()
+              : winston.format.combine(
+                  winston.format.colorize(),
+                  devLogFormat
+                )
+          ),
+        }),
+      ],
     }),
   ],
   controllers: [AppController],

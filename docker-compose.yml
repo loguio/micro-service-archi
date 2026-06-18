@@ -9,6 +9,8 @@ services:
       target: development
     ports:
       - "3001:3001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -16,8 +18,10 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - OTEL_SERVICE_NAME=auth-service
-      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://tempo:4318/v1/traces
+      - INFISICAL_API_URL=http://ops-infisical:8080
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN_AUTH_SERVICE}
+    env_file:
+      - apps/auth-service/.env
 
   user-service:
     container_name: dev-user-service
@@ -27,6 +31,8 @@ services:
       target: development
     ports:
       - "3002:3002"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -34,8 +40,10 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3002
-      - OTEL_SERVICE_NAME=user-service
-      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://tempo:4318/v1/traces
+      - INFISICAL_API_URL=http://ops-infisical:8080
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN_USER_SERVICE}
+    env_file:
+      - apps/user-service/.env
 
   web-portal:
     container_name: dev-web-portal
@@ -45,6 +53,8 @@ services:
       target: development
     ports:
       - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -54,8 +64,24 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - HOSTNAME=0.0.0.0
-      - OTEL_SERVICE_NAME=web-portal
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+      - INFISICAL_API_URL=http://ops-infisical:8080
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN_WEB_PORTAL}
+    env_file:
+      - apps/web-portal/.env
     depends_on:
       - auth-service
       - user-service
+
+  rabbitmq:
+    container_name: dev-rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # Management UI
+    restart: always
+
+networks:
+  default:
+    name: ops_default
+    external: true
+

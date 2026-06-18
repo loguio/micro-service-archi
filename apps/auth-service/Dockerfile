@@ -2,6 +2,11 @@
 FROM node:22-alpine AS base
 WORKDIR /usr/src/app
 
+# Install curl, bash, and Infisical CLI
+RUN apk --no-cache add curl bash \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash \
+    && apk --no-cache add infisical
+
 # 2. Dependencies stage
 FROM base AS dependencies
 COPY package*.json ./
@@ -14,7 +19,7 @@ RUN npm ci
 FROM dependencies AS development
 COPY . .
 EXPOSE 3001
-CMD ["npm", "run", "start:dev", "-w", "apps/auth-service"]
+CMD ["infisical", "run", "--env=dev", "--", "npm", "run", "start:dev", "-w", "apps/auth-service"]
 
 # 4. Builder stage
 FROM dependencies AS builder
@@ -30,4 +35,4 @@ COPY apps/auth-service/package.json ./apps/auth-service/
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/apps/auth-service/dist ./apps/auth-service/dist
 EXPOSE 3001
-CMD ["node", "apps/auth-service/dist/main"]
+CMD ["infisical", "run", "--env=prod", "--", "node", "apps/auth-service/dist/main"]

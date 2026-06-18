@@ -1,8 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Logger } from '@nestjs/common';
+import { EventPattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
+  private readonly logger = new Logger(AppController.name);
+
   constructor(private readonly appService: AppService) {}
 
   @Get()
@@ -21,6 +24,7 @@ export class AppController {
 
   @Get('profile')
   getUserProfile() {
+    this.logger.log('Retrieving profile details for user-1.');
     return {
       id: 'user-1',
       name: 'Jane Doe',
@@ -32,5 +36,10 @@ export class AppController {
         notifications: true,
       },
     };
+  }
+
+  @EventPattern('user_logged_in')
+  handleUserLoggedIn(@Payload() data: { email: string; timestamp: string }) {
+    this.logger.log(`[RabbitMQ Event] Received user_logged_in for user email: ${data.email} at ${data.timestamp}`);
   }
 }
